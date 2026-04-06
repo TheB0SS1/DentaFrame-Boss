@@ -2,99 +2,118 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>DentaFrame Boss - Professional Prosthodontics Quiz</title>
     <style>
         :root {
-            --primary: #0056b3; /* Dental Blue */
+            --primary: #0056b3;
+            --primary-dark: #003d80;
             --secondary: #00a8cc;
             --dark: #2c3e50;
-            --light: #f8f9fa;
+            --light: #f4f7f6;
             --white: #ffffff;
             --success: #28a745;
             --danger: #dc3545;
             --warning: #ffc107;
             --gray: #6c757d;
-            --shadow: 0 4px 6px rgba(0,0,0,0.1);
-            --radius: 12px;
-            --font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            --border-radius: 12px;
+            --shadow: 0 4px 12px rgba(0,0,0,0.08);
+            --font-main: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
         }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            outline: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
         body {
-            font-family: var(--font-family);
-            background-color: #eef2f5;
+            font-family: var(--font-main);
+            background-color: var(--light);
             color: var(--dark);
             height: 100vh;
             display: flex;
             flex-direction: column;
-            overflow: hidden;
+            overflow: hidden; /* Prevent body scroll, handle inside containers */
         }
 
         /* --- Header --- */
         header {
             background: linear-gradient(135deg, var(--primary), var(--secondary));
             color: var(--white);
-            padding: 1rem 2rem;
+            padding: 0.8rem 1.5rem;
             display: flex;
             justify-content: space-between;
             align-items: center;
             box-shadow: 0 2px 10px rgba(0,0,0,0.2);
-            z-index: 10;
+            z-index: 100;
+            flex-shrink: 0;
         }
 
         .brand {
-            font-size: 1.5rem;
+            font-size: 1.4rem;
             font-weight: 700;
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
+            white-space: nowrap;
         }
 
-        .brand span { color: #ffeb3b; }
+        .brand span { color: #fff; font-weight: 300; }
 
         .header-stats {
             display: flex;
-            gap: 20px;
+            gap: 15px;
             font-weight: 600;
-            background: rgba(0,0,0,0.2);
-            padding: 8px 15px;
-            border-radius: 50px;
+            background: rgba(0,0,0,0.15);
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.9rem;
         }
 
-        .timer-box {
-            display: flex;
-            align-items: center;
-            gap: 8px;
+        /* Mobile Dropdown for Lesson Selection */
+        .mobile-lesson-select {
+            display: none;
+            margin-right: 10px;
+            padding: 5px 10px;
+            border-radius: 5px;
+            border: none;
+            font-size: 0.9rem;
+            color: var(--dark);
         }
-        
-        .timer-icon { font-size: 1.2rem; }
-        #timer { color: #fff; font-family: monospace; font-size: 1.2rem; }
 
         /* --- Main Layout --- */
         .container {
             display: flex;
             flex: 1;
             overflow: hidden;
+            position: relative;
         }
 
-        /* --- Sidebar (Lessons) --- */
+        /* --- Sidebar --- */
         aside {
             width: 280px;
             background: var(--white);
-            border-right: 1px solid #ddd;
+            border-right: 1px solid #e0e0e0;
             display: flex;
             flex-direction: column;
             overflow-y: auto;
+            flex-shrink: 0;
+            transition: transform 0.3s ease;
         }
 
         .sidebar-header {
-            padding: 1.5rem;
-            background: var(--light);
+            padding: 1.2rem;
+            background: #f8f9fa;
             border-bottom: 1px solid #eee;
             font-weight: bold;
             color: var(--primary);
+            font-size: 1rem;
+            position: sticky;
+            top: 0;
+            z-index: 10;
         }
 
         .lesson-list {
@@ -104,32 +123,34 @@
 
         .lesson-item {
             padding: 12px 15px;
-            margin-bottom: 5px;
-            border-radius: var(--radius);
+            margin-bottom: 6px;
+            border-radius: 8px;
             cursor: pointer;
-            transition: all 0.2s;
+            transition: background 0.2s;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            font-size: 0.9rem;
+            color: var(--dark);
             border: 1px solid transparent;
         }
 
         .lesson-item:hover {
-            background-color: #f0f7ff;
+            background-color: #eef6fc;
             border-color: var(--secondary);
         }
 
         .lesson-item.active {
             background-color: var(--primary);
             color: var(--white);
-            box-shadow: var(--shadow);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.15);
         }
 
-        .lesson-item .status {
-            font-size: 0.8rem;
+        .status-badge {
+            font-size: 0.75rem;
             background: rgba(0,0,0,0.1);
-            padding: 2px 6px;
-            border-radius: 4px;
+            padding: 2px 8px;
+            border-radius: 10px;
         }
 
         .essay-btn {
@@ -138,67 +159,73 @@
             background: var(--dark);
             color: var(--white);
             border: none;
-            border-radius: var(--radius);
+            border-radius: 8px;
             cursor: pointer;
-            font-weight: bold;
+            font-weight: 600;
+            font-size: 0.9rem;
             text-align: center;
+            transition: opacity 0.2s;
         }
         .essay-btn:hover { opacity: 0.9; }
 
         /* --- Content Area --- */
         main {
             flex: 1;
-            padding: 2rem;
+            padding: 20px;
             overflow-y: auto;
             display: flex;
             justify-content: center;
             align-items: flex-start;
+            background-color: #f0f2f5;
         }
 
         .quiz-card {
             background: var(--white);
             width: 100%;
-            max-width: 800px;
-            border-radius: var(--radius);
+            max-width: 850px;
+            border-radius: var(--border-radius);
             box-shadow: var(--shadow);
-            padding: 2rem;
+            padding: 25px;
             position: relative;
-            animation: slideUp 0.4s ease-out;
+            animation: slideUp 0.3s ease-out;
         }
 
         @keyframes slideUp {
-            from { opacity: 0; transform: translateY(20px); }
+            from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
         }
 
         .q-header {
             display: flex;
             justify-content: space-between;
+            align-items: center;
             margin-bottom: 1.5rem;
             color: var(--gray);
             font-size: 0.9rem;
             border-bottom: 2px solid #f0f0f0;
             padding-bottom: 10px;
+            flex-wrap: wrap;
+            gap: 10px;
         }
 
         .question-text {
-            font-size: 1.25rem;
+            font-size: 1.3rem;
             font-weight: 600;
             margin-bottom: 2rem;
-            line-height: 1.5;
+            line-height: 1.6;
             color: #2c3e50;
         }
 
         .options-grid {
             display: grid;
             grid-template-columns: 1fr;
-            gap: 15px;
+            gap: 12px;
         }
 
         .option-btn {
-            padding: 15px 20px;
+            padding: 16px 20px;
             border: 2px solid #e0e0e0;
-            border-radius: var(--radius);
+            border-radius: 10px;
             background: var(--white);
             text-align: left;
             cursor: pointer;
@@ -206,12 +233,14 @@
             transition: all 0.2s;
             position: relative;
             display: flex;
-            align-items: center;
+            align-items: flex-start; /* Align top for multiline text */
+            width: 100%;
         }
 
         .option-btn:hover:not(:disabled) {
             border-color: var(--secondary);
             background-color: #f0fbff;
+            transform: translateX(2px);
         }
 
         .option-btn.correct {
@@ -230,13 +259,14 @@
             font-weight: bold;
             margin-right: 15px;
             background: #eee;
-            width: 30px;
-            height: 30px;
+            width: 32px;
+            height: 32px;
             display: flex;
             align-items: center;
             justify-content: center;
             border-radius: 50%;
             flex-shrink: 0;
+            margin-top: -2px; /* Visual alignment fix */
         }
 
         .correct .option-letter { background: var(--success); color: white; }
@@ -245,17 +275,17 @@
         /* Evidence Box */
         .evidence-box {
             margin-top: 2rem;
-            padding: 1.5rem;
-            background-color: #e2f3f5;
+            padding: 1.2rem;
+            background-color: #e8f4f8;
             border-left: 5px solid var(--secondary);
-            border-radius: 4px;
-            display: none; /* Hidden by default */
-            animation: fadeIn 0.5s;
+            border-radius: 6px;
+            display: none; 
+            animation: fadeIn 0.4s;
         }
 
-        .evidence-box.visible { display: block; }
-        .evidence-title { font-weight: bold; color: var(--primary); margin-bottom: 5px; }
-        .evidence-text { font-size: 0.95rem; line-height: 1.6; }
+        .evidence-box.show { display: block; }
+        .evidence-title { font-weight: 700; color: var(--primary); margin-bottom: 6px; font-size: 0.95rem; }
+        .evidence-text { font-size: 0.95rem; line-height: 1.6; color: #333; }
 
         /* Navigation Buttons */
         .nav-controls {
@@ -265,95 +295,175 @@
             align-items: center;
             border-top: 1px solid #eee;
             padding-top: 1.5rem;
+            flex-wrap: wrap;
+            gap: 10px;
         }
 
         .btn {
             padding: 10px 25px;
             border: none;
-            border-radius: 30px;
+            border-radius: 25px;
             font-weight: 600;
             cursor: pointer;
-            transition: transform 0.1s;
-            font-size: 1rem;
+            transition: transform 0.1s, opacity 0.2s;
+            font-size: 0.95rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
         }
 
-        .btn:active { transform: scale(0.98); }
+        .btn:active { transform: scale(0.96); }
 
         .btn-primary { background: var(--primary); color: white; }
-        .btn-secondary { background: #e0e0e0; color: var(--dark); }
-        .btn-primary:hover { background: #004494; }
-        .btn-secondary:hover { background: #d0d0d0; }
-
+        .btn-secondary { background: #e2e6ea; color: var(--dark); }
+        .btn-primary:hover { background: var(--primary-dark); }
+        .btn-secondary:hover { background: #dbe0e5; }
         .btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
         /* Question Navigator (Grid) */
         .q-navigator {
             display: flex;
-            gap: 5px;
+            gap: 6px;
             flex-wrap: wrap;
             justify-content: center;
-            max-width: 500px;
+            max-width: 100%;
         }
         .q-dot {
-            width: 30px;
-            height: 30px;
+            width: 32px;
+            height: 32px;
             border-radius: 50%;
             background: #eee;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 0.8rem;
+            font-size: 0.85rem;
             cursor: pointer;
             border: 1px solid #ddd;
+            color: var(--gray);
+            transition: all 0.2s;
         }
-        .q-dot.active { background: var(--primary); color: white; border-color: var(--primary); }
+        .q-dot:hover { background: #ddd; }
+        .q-dot.active { background: var(--primary); color: white; border-color: var(--primary); transform: scale(1.1); }
         .q-dot.done { background: var(--success); color: white; border-color: var(--success); }
 
         /* Essay Section Styles */
+        .essay-view {
+            width: 100%;
+            max-width: 850px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
         .essay-card {
             background: var(--white);
-            padding: 2rem;
-            border-radius: var(--radius);
+            padding: 20px;
+            border-radius: var(--border-radius);
             box-shadow: var(--shadow);
-            margin-bottom: 2rem;
-            width: 100%;
-            max-width: 800px;
         }
-        .essay-q { font-weight: bold; font-size: 1.1rem; margin-bottom: 1rem; }
+
+        .essay-q { 
+            font-weight: 600; 
+            font-size: 1.1rem; 
+            margin-bottom: 10px; 
+            color: var(--dark); 
+            line-height: 1.5;
+        }
+        
         .essay-ans { 
-            display: none; 
-            margin-top: 1rem; 
-            padding: 1rem; 
-            background: #fff3cd; 
+            display: none; /* Hidden by default */
+            margin-top: 15px; 
+            padding: 15px; 
+            background: #fff9db; 
             border: 1px solid #ffeeba; 
             border-radius: 8px; 
-            line-height: 1.6;
-            white-space: pre-wrap;
+            line-height: 1.7;
+            white-space: pre-wrap; /* Preserve line breaks */
+            font-size: 0.95rem;
+            color: #444;
         }
-        .toggle-ans-btn { color: var(--primary); background: none; border: none; cursor: pointer; text-decoration: underline; font-size: 0.9rem; }
+        
+        .essay-ans.show { display: block; }
+
+        .toggle-ans-btn { 
+            color: var(--primary); 
+            background: none; 
+            border: none; 
+            cursor: pointer; 
+            text-decoration: underline; 
+            font-size: 0.9rem;
+            font-weight: 600;
+            padding: 5px 0;
+        }
 
         /* Modal */
         .modal-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.6);
-            display: none; justify-content: center; align-items: center; z-index: 100;
+            display: none; justify-content: center; align-items: center; z-index: 200;
         }
         .modal {
-            background: white; padding: 2rem; border-radius: var(--radius);
-            text-align: center; max-width: 400px; width: 90%;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+            background: white; padding: 25px; border-radius: 12px;
+            text-align: center; max-width: 90%; width: 350px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
         }
-        .modal h2 { margin-bottom: 1rem; color: var(--primary); }
-        .modal p { margin-bottom: 1.5rem; color: var(--gray); }
+        .modal h2 { margin-bottom: 10px; color: var(--primary); }
+        .modal p { margin-bottom: 20px; color: var(--gray); font-size: 0.95rem; }
 
-        @media (max-width: 768px) {
-            .container { flex-direction: column; }
-            aside { width: 100%; height: auto; max-height: 150px; border-bottom: 1px solid #ddd; }
-            main { padding: 1rem; }
-            .header-stats { display: none; } /* Hide stats on small screens to save space */
-            .timer-mobile { display: block; } /* Add a mobile specific timer if needed */
+        /* Welcome Screen */
+        #welcome-view {
+            text-align: center;
+            padding: 40px 20px;
         }
-        
+        #welcome-view h1 { color: var(--primary); margin-bottom: 15px; font-size: 2rem; }
+        #welcome-view p { color: var(--gray); margin-bottom: 20px; font-size: 1.1rem; }
+        #welcome-view .icon { font-size: 4rem; margin-bottom: 20px; display: block; }
+
+        /* --- RESPONSIVE DESIGN --- */
+
+        /* Tablets */
+        @media (max-width: 992px) {
+            aside { width: 220px; }
+            .quiz-card { padding: 20px; }
+            .question-text { font-size: 1.2rem; }
+        }
+
+        /* Mobile Phones */
+        @media (max-width: 768px) {
+            body { height: auto; min-height: 100vh; overflow-y: auto; }
+            .container { flex-direction: column; overflow: visible; }
+            
+            /* Hide sidebar on mobile, show dropdown in header */
+            aside { display: none; }
+            .mobile-lesson-select { display: block; }
+
+            header { padding: 10px 15px; flex-wrap: wrap; }
+            .brand { font-size: 1.2rem; }
+            .header-stats { margin-left: auto; }
+            
+            main { padding: 10px; overflow: visible; }
+            .quiz-card { padding: 15px; border-radius: 8px; box-shadow: none; background: transparent; }
+            
+            .q-header { flex-direction: column; align-items: flex-start; gap: 5px; }
+            
+            .question-text { font-size: 1.1rem; margin-bottom: 1.5rem; }
+            
+            .options-grid { gap: 10px; }
+            .option-btn { padding: 12px 15px; font-size: 0.95rem; align-items: center; }
+            .option-letter { width: 28px; height: 28px; font-size: 0.9rem; margin-right: 12px; margin-top: 0;}
+
+            .nav-controls { flex-direction: column-reverse; align-items: stretch; gap: 15px; }
+            .btn { width: 100%; padding: 12px; }
+            
+            .q-navigator { order: -1; margin-bottom: 10px; }
+            .q-dot { width: 28px; height: 28px; font-size: 0.8rem; }
+
+            .evidence-box { margin-top: 1.5rem; padding: 1rem; }
+            
+            #welcome-view h1 { font-size: 1.6rem; }
+            #welcome-view .icon { font-size: 3rem; }
+        }
+
         /* Utility */
         .hidden { display: none !important; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
@@ -364,22 +474,25 @@
 
     <!-- Header -->
     <header>
-        <div class="brand">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 12.5C4.5 12.5 4.5 8 12 8c7.5 0 7.5 4.5 7.5 4.5v4.5H4.5v-4.5z"></path><path d="M12 8V2"></path><path d="M9 22h6"></path><path d="M8 18h8"></path></svg>
-            DentaFrame <span>Boss</span>
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <select id="mobile-lesson-select" class="mobile-lesson-select" onchange="app.changeLessonFromMobile(this.value)">
+                <option value="">Select Lesson...</option>
+                <!-- Options populated by JS -->
+            </select>
+            <div class="brand">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:5px;"><path d="M4.5 12.5C4.5 12.5 4.5 8 12 8c7.5 0 7.5 4.5 7.5 4.5v4.5H4.5v-4.5z"></path><path d="M12 8V2"></path><path d="M9 22h6"></path><path d="M8 18h8"></path></svg>
+                DentaFrame <span>Boss</span>
+            </div>
         </div>
         <div class="header-stats">
-            <div class="timer-box">
-                <span class="timer-icon">⏱</span>
-                <span id="timer">01:30</span>
-            </div>
+            <div id="timer">01:30</div>
             <div>Score: <span id="score-display">0</span></div>
         </div>
     </header>
 
     <div class="container">
         <!-- Sidebar -->
-        <aside>
+        <aside id="sidebar">
             <div class="sidebar-header">
                 Topics (Lessons)
             </div>
@@ -425,18 +538,18 @@
             </div>
 
             <!-- Essay View -->
-            <div id="essay-view" class="hidden" style="width: 100%; display: flex; flex-direction: column; align-items: center;">
-                <h2 style="color: var(--primary); margin-bottom: 20px;">Essay & Short Questions</h2>
+            <div id="essay-view" class="hidden essay-view">
+                <h2 style="color: var(--primary); margin-bottom: 20px; text-align: center;">Essay & Short Questions</h2>
                 <div id="essay-container"></div>
-                <button class="btn btn-secondary" onclick="app.showQuizSection()">Back to Quiz</button>
+                <button class="btn btn-secondary" onclick="app.showQuizSection()" style="width: 100%; max-width: 300px; margin: 20px auto;">Back to Quiz</button>
             </div>
             
             <!-- Welcome View -->
-            <div id="welcome-view" class="quiz-card" style="text-align: center;">
-                <h1 style="color: var(--primary); margin-bottom: 10px;">Welcome to DentaFrame Boss</h1>
-                <p style="color: var(--gray); margin-bottom: 20px;">Select a lesson from the sidebar to start your professional prosthodontics training.</p>
-                <div style="font-size: 3rem;">🦷</div>
-                <p style="margin-top: 20px; font-size: 0.9rem;">Your progress is saved automatically.</p>
+            <div id="welcome-view" class="quiz-card">
+                <span class="icon">🦷</span>
+                <h1>Welcome to DentaFrame Boss</h1>
+                <p>Select a lesson from the sidebar (or menu on mobile) to start your professional prosthodontics training.</p>
+                <p style="font-size: 0.9rem; margin-top: 10px; color: #888;">Your progress is saved automatically.</p>
             </div>
         </main>
     </div>
@@ -845,6 +958,7 @@
             init() {
                 this.loadProgress();
                 this.renderSidebar();
+                this.renderMobileDropdown();
                 this.renderEssays();
                 
                 if (this.state.currentLessonId !== null) {
@@ -853,7 +967,6 @@
                     document.getElementById('welcome-view').classList.remove('hidden');
                 }
                 
-                // Update score display
                 this.updateScore();
             },
 
@@ -883,10 +996,29 @@
                     });
                     const progressText = answered > 0 ? `${answered}/${total}` : 'Start';
 
-                    li.innerHTML = `<span>Lesson ${lesson.id}: ${lesson.title}</span> <span class="status">${progressText}</span>`;
+                    li.innerHTML = `<span>Lesson ${lesson.id}: ${lesson.title}</span> <span class="status-badge">${progressText}</span>`;
                     li.onclick = () => this.loadLesson(lesson.id);
                     list.appendChild(li);
                 });
+            },
+
+            renderMobileDropdown() {
+                const select = document.getElementById('mobile-lesson-select');
+                select.innerHTML = '<option value="">Select Lesson...</option>';
+                lessonData.forEach(lesson => {
+                    const opt = document.createElement('option');
+                    opt.value = lesson.id;
+                    opt.textContent = `Lesson ${lesson.id}: ${lesson.title}`;
+                    select.appendChild(opt);
+                });
+            },
+
+            changeLessonFromMobile(val) {
+                if(val) {
+                    this.loadLesson(parseInt(val));
+                    // Reset select to placeholder
+                    document.getElementById('mobile-lesson-select').value = "";
+                }
             },
 
             renderEssays() {
@@ -895,13 +1027,25 @@
                 essayData.forEach((item, index) => {
                     const div = document.createElement('div');
                     div.className = 'essay-card';
+                    // Using data-id to identify the specific essay card for toggling
                     div.innerHTML = `
                         <div class="essay-q">${item.q}</div>
-                        <button class="toggle-ans-btn" onclick="this.nextElementSibling.classList.toggle('visible')">Show/Hide Answer</button>
+                        <button class="toggle-ans-btn" onclick="app.toggleEssay(this)">Show Answer</button>
                         <div class="essay-ans">${item.a}</div>
                     `;
                     container.appendChild(div);
                 });
+            },
+
+            toggleEssay(btn) {
+                const ansDiv = btn.nextElementSibling;
+                if (ansDiv.classList.contains('show')) {
+                    ansDiv.classList.remove('show');
+                    btn.textContent = "Show Answer";
+                } else {
+                    ansDiv.classList.add('show');
+                    btn.textContent = "Hide Answer";
+                }
             },
 
             loadLesson(lessonId, resetIndex = true) {
@@ -910,12 +1054,17 @@
                 
                 document.getElementById('welcome-view').classList.add('hidden');
                 document.getElementById('essay-view').classList.add('hidden');
-                document.getElementById('essay-view').style.display = 'none'; // Ensure flex is hidden
+                document.getElementById('essay-view').style.display = 'none'; 
                 document.getElementById('quiz-view').classList.remove('hidden');
                 
                 this.renderSidebar();
                 this.saveProgress();
                 this.renderQuestion();
+                
+                // Scroll to top of main content on mobile to ensure visibility
+                if(window.innerWidth < 768) {
+                    window.scrollTo(0,0);
+                }
             },
 
             showEssaySection() {
@@ -925,6 +1074,7 @@
                 essayView.classList.remove('hidden');
                 essayView.style.display = 'flex';
                 this.renderSidebar();
+                if(window.innerWidth < 768) window.scrollTo(0,0);
             },
 
             showQuizSection() {
@@ -946,7 +1096,7 @@
                 if (!lesson) return;
 
                 const qData = lesson.questions[this.state.currentQuestionIndex];
-                const qId = `l${lesson.id}_q${qData.q}`; // unique ID based on question text (simple approach)
+                const qId = `l${lesson.id}_q${qData.q}`; // unique ID based on question text
 
                 // Update Header
                 document.getElementById('lesson-title').textContent = `Lesson ${lesson.id}`;
@@ -959,7 +1109,6 @@
                 const optionsContainer = document.getElementById('options-container');
                 optionsContainer.innerHTML = '';
                 
-                // Check if already answered
                 const savedAnswer = this.state.answers[qId];
                 const isAnswered = savedAnswer !== undefined;
 
@@ -967,18 +1116,15 @@
                     const btn = document.createElement('button');
                     btn.className = 'option-btn';
                     
-                    // Letter
                     const letter = document.createElement('span');
                     letter.className = 'option-letter';
-                    letter.textContent = String.fromCharCode(65 + index); // A, B, C, D
+                    letter.textContent = String.fromCharCode(65 + index);
                     btn.appendChild(letter);
 
-                    // Text
                     const span = document.createElement('span');
                     span.textContent = opt;
                     btn.appendChild(span);
 
-                    // Logic for styling answered questions
                     if (isAnswered) {
                         btn.disabled = true;
                         if (index === qData.a) {
@@ -996,17 +1142,15 @@
                 // Handle Evidence Box
                 const evBox = document.getElementById('evidence-box');
                 if (isAnswered) {
-                    evBox.classList.add('visible');
+                    evBox.classList.add('show');
                     document.getElementById('evidence-text').textContent = qData.e;
                 } else {
-                    evBox.classList.remove('visible');
+                    evBox.classList.remove('show');
                     this.startTimer();
                 }
 
-                // Update Navigator
                 this.renderNavigator(lesson);
 
-                // Update Button States
                 document.getElementById('prev-btn').disabled = this.state.currentQuestionIndex === 0;
                 const isLast = this.state.currentQuestionIndex === lesson.questions.length - 1;
                 document.getElementById('next-btn').textContent = isLast ? "Finish Lesson" : "Next";
@@ -1019,7 +1163,6 @@
                     const dot = document.createElement('div');
                     dot.className = `q-dot ${idx === this.state.currentQuestionIndex ? 'active' : ''}`;
                     
-                    // Check if answered
                     const qId = `l${lesson.id}_q${lesson.questions[idx].q}`;
                     if (this.state.answers[qId] !== undefined) {
                         dot.classList.add('done');
@@ -1037,7 +1180,7 @@
 
             startTimer() {
                 clearInterval(this.timerInterval);
-                this.timeLeft = 90; // Reset timer
+                this.timeLeft = 90; 
                 this.updateTimerDisplay();
                 
                 this.timerInterval = setInterval(() => {
@@ -1065,20 +1208,16 @@
                 const qData = lesson.questions[this.state.currentQuestionIndex];
                 const qId = `l${lesson.id}_q${qData.q}`;
 
-                // Mark as skipped/wrong (store -1 or null)
                 this.state.answers[qId] = -1; 
                 this.saveProgress();
                 
-                // Show Modal
                 document.getElementById('modal-title').textContent = "Time's Up!";
                 document.getElementById('modal-msg').textContent = `The correct answer was ${String.fromCharCode(65 + qData.a)}.`;
                 document.getElementById('modal-overlay').style.display = 'flex';
 
-                // Show Evidence (but don't score)
-                document.getElementById('evidence-box').classList.add('visible');
+                document.getElementById('evidence-box').classList.add('show');
                 document.getElementById('evidence-text').textContent = qData.e;
                 
-                // Redraw buttons to show correct answer
                 const options = document.querySelectorAll('.option-btn');
                 options[qData.a].classList.add('correct');
             },
@@ -1086,10 +1225,8 @@
             handleAnswer(qId, selectedIndex, correctIndex, evidence) {
                 clearInterval(this.timerInterval);
                 
-                // Save Answer
                 this.state.answers[qId] = selectedIndex;
                 
-                // Update Score
                 if (selectedIndex === correctIndex) {
                     this.state.score++;
                     this.updateScore();
@@ -1097,7 +1234,6 @@
 
                 this.saveProgress();
 
-                // Update UI
                 const options = document.querySelectorAll('.option-btn');
                 options.forEach((btn, idx) => {
                     btn.disabled = true;
@@ -1105,12 +1241,10 @@
                     else if (idx === selectedIndex) btn.classList.add('wrong');
                 });
 
-                // Show Evidence
                 const evBox = document.getElementById('evidence-box');
-                evBox.classList.add('visible');
+                evBox.classList.add('show');
                 document.getElementById('evidence-text').textContent = evidence;
                 
-                // Update Navigator
                 this.renderNavigator(this.getCurrentLesson());
             },
 
@@ -1122,11 +1256,10 @@
                     this.renderQuestion();
                     this.saveProgress();
                 } else {
-                    // End of Lesson
                     alert(`Lesson ${lesson.id} Completed! Returning to menu.`);
                     this.state.currentLessonId = null;
                     this.saveProgress();
-                    location.reload(); // Simple reload to reset view cleanly
+                    location.reload(); 
                 }
             },
 
@@ -1145,11 +1278,10 @@
 
             closeModal() {
                 document.getElementById('modal-overlay').style.display = 'none';
-                this.nextQuestion(); // Auto advance after timeout
+                this.nextQuestion(); 
             }
         };
 
-        // Initialize App
         window.onload = () => app.init();
 
     </script>
